@@ -49,7 +49,7 @@ class PaperSynthesizer:
             if result.success:
                 return code
             
-            logger.warning(f"   ⚠️ Code failed local validation: {result.error}")
+            logger.warning(f"   ⚠️ Code failed local validation, calling healer: {result.error}")
             logger.info("   🩹 Healing code...")
             code = self._heal_code(code, result.error, model_specs)
             

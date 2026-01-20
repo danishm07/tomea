@@ -10,7 +10,7 @@ env/
 
 # --- Research & Training Logs ---
 
-**/runs/
+
 *.log
 training_log.txt
 
@@ -37,7 +37,7 @@ build/
 .LSOverride
 
 # Uncomment the line below if want to allow zipping runs
-# !*.zip
+#!*.zip
 
-**/runs/
-**/__pycache__/
+#**/runs/
+#**/__pycache__/
