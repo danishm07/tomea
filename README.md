@@ -4,7 +4,7 @@
 
 **Autonomous Research Implementation Engine**
 
-Tomea is an experimental framework that automates the implementation of Machine Learning research papers. It reads raw arXiv papers, synthesizes PyTorch code (adapters, layers, training loops), and executes them in a self-healing environment that autonomously fixes runtime errors (tensor shape mismatches, CUDA issues, etc.).
+Tomea is an experimental framework that automates the implementation of Machine Learning research papers. It reads raw arXiv papers, synthesizes PyTorch code (adapters, layers, training loops), executes them in a self-healing environment that autonomously fixes runtime errors (tensor shape mismatches, CUDA issues, etc.), displays training through real time terminal graphs and saves results. 
 
 **Status: Pre-Alpha / Prototype**
 *This repository is a work-in-progress research artifact. It is designed for experimentation with agentic orchestration, not production deployment.*
@@ -14,6 +14,7 @@ Tomea is an experimental framework that automates the implementation of Machine 
 * **Self-Healing Engine:** Diagnoses stack traces (e.g., `RuntimeError`) and hot-patches the Python code to fix bugs during training.
 * **Cloud Execution:** Spins up ephemeral GPU containers via [Modal](https://modal.com) to run experiments in parallel.
 * **TUI Dashboard:** Real-time terminal dashboard for tracking loss curves and agent status.
+* **Result Saving** Saved folder for storing generated code, logs and iterations for each paper. (Refer to the 'runs/' folder for example outputs)
 
 ## Quick Start
 
@@ -62,7 +63,7 @@ modal setup
 
 ### Usage
 
-Run the demo engine to start an interactive session. You can select a dataset and a list of papers (Standard or Custom ArXiv ID).
+Run the demo engine (demo_engine.py) to start an interactive session. You can select a dataset and a list of papers (Standard or Custom ArXiv ID).
 
 ```bash
 python demo_engine.py
