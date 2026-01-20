@@ -1,7 +1,7 @@
 ```markdown
-# Tomea
+### Tomea
 
-> **Autonomous Research Implementation Engine**
+**Autonomous Research Implementation Engine**
 
 Tomea is an experimental framework that automates the implementation of Machine Learning research papers. It reads raw arXiv papers, synthesizes PyTorch code (adapters, layers, training loops), and executes them in a self-healing environment that autonomously fixes runtime errors (tensor shape mismatches, CUDA issues, etc.).
 
