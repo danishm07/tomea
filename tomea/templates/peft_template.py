@@ -1,0 +1,299 @@
+"""PEFT method template for LoRA, IA3, Prefix Tuning, etc."""
+
+from typing import Dict, List
+from .base import BaseTemplate, AdapterCode
+import re
+
+
+class PEFTTemplate(BaseTemplate):
+    """
+    Template for Parameter-Efficient Fine-Tuning methods.
+    
+    Handles: LoRA, IA3, Prefix Tuning, Adapters, etc.
+    Strategy: Import from 'peft' library and configure.
+    """
+    
+    def __init__(self):
+        super().__init__()
+        self.max_tokens = 500  # PEFT code is short
+    
+    def generate_adapter(self, repo_map: str, context: Dict) -> AdapterCode:
+        """
+        Generate PEFT adapter by identifying config class and parameters.
+        
+        Args:
+            repo_map: Structured repo map (won't use much - PEFT is standardized)
+            context: {
+                'paper_abstract': str,
+                'classification': dict from planner,
+                'arxiv_id': str
+            }
+        
+        Returns:
+            AdapterCode with PEFT implementation
+        """
+        # Determine which PEFT method based on repo map and classification
+        peft_method = self._identify_peft_method(repo_map, context)
+        
+        # Generate adapter code
+        if peft_method == 'lora':
+            code = self._generate_lora_adapter(repo_map, context)
+        elif peft_method == 'ia3':
+            code = self._generate_ia3_adapter(repo_map, context)
+        elif peft_method == 'prefix_tuning':
+            code = self._generate_prefix_adapter(repo_map, context)
+        else:
+            # Generic PEFT
+            code = self._generate_generic_peft_adapter(repo_map, context, peft_method)
+        
+        return AdapterCode(
+            code=code,
+            method_type=f'peft_{peft_method}',
+            estimated_loc=len(code.split('\n')),
+            required_imports=['peft', 'transformers'],
+            config_params={'method': peft_method}
+        )
+
+    # Around line 80, ADD THIS METHOD:
+
+    def _get_target_modules(self, method: str, base_model: str) -> List[str]:
+        """
+        Get correct target modules for architecture.
+        
+        Args:
+            method: PEFT method ("LORA", "IA3", etc.)
+            base_model: Base model name
+        
+        Returns:
+            List of module names to target
+        """
+        from tomea.core.architecture_detector import detect_architecture
+        
+        arch_type = detect_architecture(base_model)
+        
+        # Architecture-specific module names
+        if arch_type == 'bert':
+            # BERT uses: query, key, value
+            modules = ["query", "key", "value"]
+        
+        elif arch_type == 'gpt2':
+            # GPT-2 uses: c_attn, c_proj
+            modules = ["c_attn", "c_proj"]
+        
+        elif arch_type == 't5':
+            # T5 uses: q, k, v, o
+            modules = ["q", "k", "v", "o"]
+        
+        elif arch_type == 'llama':
+            # LLaMA uses: q_proj, k_proj, v_proj, o_proj
+            modules = ["q_proj", "k_proj", "v_proj", "o_proj"]
+        
+        else:
+            # Default to BERT-style
+            modules = ["query", "key", "value"]
+        
+        # IA3 only targets K and V
+        if method.upper() == "IA3":
+            if arch_type == 'bert':
+                modules = ["key", "value"]
+            elif arch_type == 'llama':
+                modules = ["k_proj", "v_proj"]
+            elif arch_type == 't5':
+                modules = ["k", "v"]
+            # GPT-2 keeps all for IA3
+        
+        return modules
+        
+    def _identify_peft_method(self, repo_map: str, context: Dict) -> str:
+        """Identify which PEFT method this paper uses."""
+        repo_lower = repo_map.lower()
+        abstract = context.get('paper_abstract', '').lower()
+        
+        # Check for specific methods
+        if 'loraconfig' in repo_lower or 'lora' in abstract:
+            return 'lora'
+        elif 'ia3config' in repo_lower or 'ia3' in abstract or 'ia-3' in abstract:
+            return 'ia3'
+        elif 'prefixtuning' in repo_lower or 'prefix tuning' in abstract:
+            return 'prefix_tuning'
+        elif 'adapterconfig' in repo_lower:
+            return 'adapter'
+        
+        # Default to LoRA (most common)
+        return 'lora'
+    
+    def _generate_lora_adapter(self, repo_map: str, context: Dict) -> str:
+        """Generate LoRA adapter code."""
+        # Extract parameters from repo if possible
+        r_value = self._extract_param(repo_map, 'r', default=8)
+        alpha_value = self._extract_param(repo_map, 'lora_alpha', default=16)
+        
+        # Detect target modules
+        # Get base model and method from context
+        base_model = context.get('base_model', 'bert-base-uncased')
+        method_name = context.get('method_type', 'LORA')
+
+        # Detect target modules based on architecture
+        target_modules = self._get_target_modules(method_name, base_model)
+
+        
+        code = f'''"""
+LoRA adapter for {context.get('arxiv_id', 'paper')}
+Generated by Tomea
+"""
+
+from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForSequenceClassification
+
+
+def get_config():
+    """Get LoRA configuration."""
+    return LoraConfig(
+        r={r_value},
+        lora_alpha={alpha_value},
+        target_modules={target_modules},
+        lora_dropout=0.05,
+        bias="none",
+        task_type="SEQ_CLS"
+    )
+
+
+def get_model(base_model_name: str, num_labels: int):
+    """
+    Apply LoRA to base model.
+    
+    Args:
+        base_model_name: HuggingFace model name
+        num_labels: Number of classification labels
+    
+    Returns:
+        Model with LoRA applied
+    """
+    # Load base model
+    base_model = AutoModelForSequenceClassification.from_pretrained(
+        base_model_name,
+        num_labels=num_labels
+    )
+    
+    # Apply LoRA
+    config = get_config()
+    model = get_peft_model(base_model, config)
+    
+    # Print trainable parameters
+    model.print_trainable_parameters()
+    
+    return model
+'''
+        return code
+    
+    def _generate_ia3_adapter(self, repo_map: str, context: Dict) -> str:
+        """Generate IA3 adapter code."""
+        code = f'''"""
+IA3 adapter for {context.get('arxiv_id', 'paper')}
+Generated by Tomea
+"""
+
+from peft import IA3Config, get_peft_model
+from transformers import AutoModelForSequenceClassification
+
+
+def get_config():
+    """Get IA3 configuration."""
+    return IA3Config(
+        target_modules=["k_proj", "v_proj", "down_proj"],
+        feedforward_modules=["down_proj"],
+        task_type="SEQ_CLS"
+    )
+
+
+def get_model(base_model_name: str, num_labels: int):
+    """Apply IA3 to base model."""
+    base_model = AutoModelForSequenceClassification.from_pretrained(
+        base_model_name,
+        num_labels=num_labels
+    )
+    
+    config = get_config()
+    model = get_peft_model(base_model, config)
+    model.print_trainable_parameters()
+    
+    return model
+'''
+        return code
+    
+    def _generate_prefix_adapter(self, repo_map: str, context: Dict) -> str:
+        """Generate Prefix Tuning adapter code."""
+        num_virtual_tokens = self._extract_param(repo_map, 'num_virtual_tokens', default=20)
+        
+        code = f'''"""
+Prefix Tuning adapter for {context.get('arxiv_id', 'paper')}
+Generated by Tomea
+"""
+
+from peft import PrefixTuningConfig, get_peft_model
+from transformers import AutoModelForSequenceClassification
+
+
+def get_config():
+    """Get Prefix Tuning configuration."""
+    return PrefixTuningConfig(
+        num_virtual_tokens={num_virtual_tokens},
+        task_type="SEQ_CLS"
+    )
+
+
+def get_model(base_model_name: str, num_labels: int):
+    """Apply Prefix Tuning to base model."""
+    base_model = AutoModelForSequenceClassification.from_pretrained(
+        base_model_name,
+        num_labels=num_labels
+    )
+    
+    config = get_config()
+    model = get_peft_model(base_model, config)
+    model.print_trainable_parameters()
+    
+    return model
+'''
+        return code
+    
+    def _generate_generic_peft_adapter(self, repo_map: str, context: Dict, method: str) -> str:
+        """Fallback generic PEFT adapter."""
+        # Default to LoRA with warning
+        code = self._generate_lora_adapter(repo_map, context)
+        code = f'# WARNING: Unknown PEFT method "{method}", defaulting to LoRA\n\n' + code
+        return code
+    
+    def _extract_param(self, repo_map: str, param_name: str, default: int) -> int:
+        """Extract parameter value from repo map."""
+        # Look for patterns like "r=8" or "r: int = 8"
+        patterns = [
+            rf'{param_name}\s*=\s*(\d+)',
+            rf'{param_name}:\s*int\s*=\s*(\d+)',
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, repo_map)
+            if match:
+                return int(match.group(1))
+        
+        return default
+    
+    def _detect_target_modules(self, repo_map: str) -> List[str]:
+        """Detect which modules to target for LoRA."""
+        # Common patterns
+        if 'target_modules' in repo_map:
+            # Try to extract list
+            match = re.search(r'target_modules\s*[=:]\s*\[(.*?)\]', repo_map)
+            if match:
+                modules_str = match.group(1)
+                # Parse list
+                modules = [m.strip().strip('"').strip("'") for m in modules_str.split(',')]
+                return modules
+        
+        # Default to common attention modules
+        return ["q_proj", "v_proj"]
+    
+    def get_required_files(self, repo_map: str) -> List[str]:
+        """PEFT doesn't need files from repo - uses standard library."""
+        return []  # Empty - we use peft library directly

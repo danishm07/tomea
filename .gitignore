@@ -1,0 +1,43 @@
+# --- Python & Environment ---
+__pycache__/
+*.py[cod]
+*$py.class
+**/venv/
+venv/
+.venv/
+env/
+.env
+
+# --- Research & Training Logs ---
+
+**/runs/
+*.log
+training_log.txt
+
+# --- Large Data / Results ---
+results/
+data/
+*.csv
+*.pt
+*.pth
+*.bin
+
+# --- Distribution & Metadata ---
+dist/
+build/
+*.egg-info/
+.cache/
+.pytest_cache/
+
+# --- System Files ---
+.DS_Store
+.vscode/
+.idea/
+.AppleDouble
+.LSOverride
+
+# Uncomment the line below if want to allow zipping runs
+# !*.zip
+
+**/runs/
+**/__pycache__/

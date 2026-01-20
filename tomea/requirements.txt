@@ -1,0 +1,41 @@
+# Core
+modal
+python-dotenv
+
+# LLM APIs
+openai
+anthropic
+langchain
+langchain-community
+langchain-openai
+
+# Data processing
+pandas
+numpy
+
+# Document parsing
+PyMuPDF
+arxiv
+
+# Web search
+tavily-python
+
+# UI/Display
+rich
+rich-sparklines
+plotext
+plotille
+
+# Code analysis (NEW - for Cartographer)
+tree-sitter
+tree-sitter-languages
+networkx
+tiktoken
+
+
+
+# Testing (optional)
+pytest
+pytest-asyncio
+
+astor
