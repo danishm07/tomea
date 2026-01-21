@@ -6,7 +6,13 @@
 
 Tomea is an experimental framework that automates the implementation of Machine Learning research papers. It reads raw arXiv papers, synthesizes PyTorch code (adapters, layers, training loops), executes them in a self-healing environment that autonomously fixes runtime errors (tensor shape mismatches, CUDA issues, etc.), displays training through real time terminal graphs and saves results. 
 
-View the Demo: https://tomealanding.vercel.app 
+**See it in action (~1 min):**
+
+
+https://github.com/user-attachments/assets/10ca6d57-4905-421b-a610-f2a37fb6ceef
+
+
+
 
 **Status: Pre-Alpha / Prototype**
 *This repository is a work-in-progress research artifact. It is designed for experimentation with agentic orchestration, not production deployment.*
@@ -14,6 +20,13 @@ View the Demo: https://tomealanding.vercel.app
 ## Features
 * **Paper-to-Code:** Parses arXiv PDFs and generates `nn.Module` implementations.
 * **Self-Healing Engine:** Diagnoses stack traces (e.g., `RuntimeError`) and hot-patches the Python code to fix bugs during training.
+  
+  **Self Healing In Action**
+  
+
+   https://github.com/user-attachments/assets/a4532120-0de4-4f82-b197-527b413beb2f
+
+
 * **Cloud Execution:** Spins up ephemeral GPU containers via [Modal](https://modal.com) to run experiments in parallel.
 * **TUI Dashboard:** Real-time terminal dashboard for tracking loss curves and agent status.
 * **Result Saving** Saved folder for storing generated code, logs and iterations for each paper. (Refer to the 'runs/' folder for example outputs)
