@@ -13,7 +13,8 @@ Tomea is an experimental framework that automates the implementation of Machine 
 
 https://github.com/user-attachments/assets/10ca6d57-4905-421b-a610-f2a37fb6ceef
 
-**The Why**
+**The Why:**
+
   I originally built this to solve a specific problem: deciding which ML papers to implement without spending days on each one. 
 
   **Reality check:** After talking to ML engineers, reactions were mixed - some want exactly this to filter papers fast, others think manual implementation is part of learning. Probably depends on whether you're doing research or applied work.
