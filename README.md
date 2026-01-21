@@ -5,16 +5,22 @@
 **Autonomous Research Implementation Engine**
 
 Tomea is an experimental framework that automates the implementation of Machine Learning research papers. Its goal is to test methods introduced in papers before full user implementation. It reads raw arXiv papers, synthesizes PyTorch code (adapters, layers, training loops), tracks perfomance against a given benchmark, executes them in a self-healing environment that autonomously fixes runtime errors (tensor shape mismatches, CUDA issues, etc.), displays training through real time terminal graphs, saves results, and provides feedback on different implementations. 
-
+ 
 **Status: Pre-Alpha / Prototype**
 *This repository is a work-in-progress research artifact. It is designed for experimentation with agentic orchestration, not production deployment.*
 
-
 **See it in action (~1 min):**
-
-
 https://github.com/user-attachments/assets/10ca6d57-4905-421b-a610-f2a37fb6ceef
 
+**The Why**
+  I originally built this to solve a specific problem: deciding which ML papers to implement without spending days on each one. 
+
+  **Reality check:** After talking to ML engineers, reactions were mixed - some want exactly this to filter papers fast, others think manual implementation is part of learning. Probably depends on whether you're doing research or applied work.
+
+  **Feedback I'd especially appreciate:**
+  - Self-healing approach (analyzing stack traces vs just retrying)
+  - Fair benchmarking across different methods  
+  - Extracting architectures from PDFs reliably
 
 ## Features
 * **Paper-to-Code:** Parses arXiv PDFs and generates `nn.Module` implementations.
