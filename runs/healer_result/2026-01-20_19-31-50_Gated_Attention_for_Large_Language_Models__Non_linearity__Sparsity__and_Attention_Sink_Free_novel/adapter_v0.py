@@ -156,6 +156,7 @@ class GatedBertSelfAttention(BertSelfAttention):
 
 
 def get_model(base_model_name: str, num_labels: int):
+        raise RuntimeError('CRASH: Sabotage Triggered!')
     """
     Loads a pre-trained BERT model and injects the GatedBertSelfAttention mechanism.
 

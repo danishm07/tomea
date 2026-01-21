@@ -8,6 +8,8 @@ import re
 from typing import List, Dict
 from rich.console import Console
 from rich.live import Live
+from rich.panel import Panel
+import time
 
 # Imports
 from tomea.ui.parallel_dashboard import ParallelDashboard
@@ -146,6 +148,7 @@ async def fix_code_with_llm(llm: ChatOpenAI, code: str, error: str, previous_att
     Surgical Healer V3: Enhanced diagnostics + Better error patterns
     """
     
+    
     # --- ENHANCED DIAGNOSTICS ---
     hints = []
     
@@ -211,7 +214,7 @@ async def fix_code_with_llm(llm: ChatOpenAI, code: str, error: str, previous_att
             "  2. Import and use BertSelfAttention directly instead of using the registry"
         )
 
-    hint_block = "\n".join([f"👉 {h}" for h in hints]) if hints else "👉 Analyze the error and fix the code."
+    hint_block = "\n".join([f"-> {h}" for h in hints]) if hints else "-> Analyze the error and fix the code."
 
     history_context = ""
     if previous_attempts:
@@ -339,7 +342,8 @@ async def run_comparison_engine(papers, dataset_path, llm_client, console) -> Di
             write_log(f"!!! CRITICAL GENERATION ERROR: {error_msg}")
             traceback.print_exc()
             return None
-
+        
+        
         # --- PHASE 2: EXECUTION ---
         error_history = []
         MAX_RETRIES = 3
@@ -376,22 +380,36 @@ async def run_comparison_engine(papers, dataset_path, llm_client, console) -> Di
                     return experiment_result_from_metrics(metrics, paper['name'])
                 
                 else:
-                    # --- EXTRACT THE REAL ERROR ---
+                    # --- EXTRACT THE ERROR ---
                     error_msg = extract_real_error(metrics)
                     write_log(f"!!! FAILURE: {error_msg}")
                     error_history.append(f"Attempt {attempt+1}: {error_msg[:200]}...")
                     
                     if attempt < MAX_RETRIES:
-                        update_status(f"⚠️ Error: {error_msg[:10]}... Healing...")
-                        dashboard.update_status(index, "🚑 Self-Healing...")
+                        
+                        dashboard.update_status(index, "[red] CRASH DETECTED! HEALING...  [/red]")
+                        
+                        
+                        write_log("\n" + "="*40)
+                        write_log("[bold red] CRASH DETECTED![/bold red]")
+                        write_log(f"[yellow]{error_msg[:100]}...[/yellow]")
+                        write_log("[bold green]🩹 INITIATING HEALER PROTOCOL...[/bold green]")
+                        write_log("="*40 + "\n")
+                        
+                        dashboard.update_paper(index, "[bold red] CRASH DETECTED! [/bold red]")
+
+                        
+                        import time
+                        time.sleep(4)
+                        
+                        
                         write_log("--- INITIATING HEALING ---")
                         
-                        # Pass the REAL error to the healer
+                        
                         new_code = await fix_code_with_llm(llm_client, code, error_msg, previous_attempts=error_history)
                         
-                        # Check if code changed
                         if new_code == code:
-                            write_log("!!! WARNING: Healer returned IDENTICAL code. It failed to fix anything.")
+                            write_log("!!! WARNING: Healer returned IDENTICAL code.")
                         else:
                             write_log("--- Healer modified the code ---")
                         
