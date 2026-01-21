@@ -10,6 +10,7 @@ Tomea is an experimental framework that automates the implementation of Machine 
 *This repository is a work-in-progress research artifact. It is designed for experimentation with agentic orchestration, not production deployment.*
 
 **See it in action (~1 min):**
+
 https://github.com/user-attachments/assets/10ca6d57-4905-421b-a610-f2a37fb6ceef
 
 **The Why**
