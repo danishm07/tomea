@@ -1,0 +1,18 @@
+[
+  {
+    "test": 2,
+    "name": "DAPO \u2014 Training Loop",
+    "mission_success": true,
+    "extraction": {
+      "confidence": 0.9,
+      "novel_contribution": "See paper",
+      "smoke_test_feasible": "yes"
+    },
+    "verdict": "FAIL \u2014 missed asymmetric clipping entirely",
+    "notes": [
+      "\u26a0\ufe0f  Dynamic sampling not flagged as out-of-scope"
+    ],
+    "elapsed_seconds": 402.1,
+    "run_dir": "/Users/danish/Desktop/01_Projects/tomea_v3/runs/2503.14476_20260202_200804"
+  }
+]

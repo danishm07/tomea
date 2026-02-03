@@ -1,0 +1,8 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Traceback (most recent call last):
+File "/root/experiment/experiment.py", line 154, in <module>
+run_experiment()
+File "/root/experiment/experiment.py", line 93, in run_experiment
+config = GRPOConfig(
+^^^^^^^^^^^
+TypeError: GRPOConfig.__init__() got an unexpected keyword argument 'beta_kl'
